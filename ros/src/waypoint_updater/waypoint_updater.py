@@ -35,7 +35,7 @@ class WaypointUpdater(object):
         rospy.Subscriber('/base_waypoints', Lane, self.waypoints_cb)
 
         # TODO: Add a subscriber for /traffic_waypoint and /obstacle_waypoint below
-        # rospy.Subscriber('/traffic_waypoint',Int32 ,self.traffic_cb)
+        rospy.Subscriber('/traffic_waypoint',Int32 ,self.traffic_cb)
         # rospy.Subscriber('/obstacle_waypoint',Int32 ,self.obstacle_cb) #hmm, don't seme to exist?
 
         self.final_waypoints_pub = rospy.Publisher('final_waypoints', Lane, queue_size=1)
@@ -86,6 +86,16 @@ class WaypointUpdater(object):
         lane.waypoints = self.base_waypoints.waypoints[closest_idx: closest_idx + LOOKAHEAD_WPS]
         print('publish wps')
         self.final_waypoints_pub.publish(lane)
+
+    def generate_lane(self):
+        lane = Lane()
+
+        closest_idx = self.get_closest_waypoint_idx()
+        furthest_idx = closest_idx + LOOKAHEAD_WPS
+        base_wps = self.base_waypoints[closest_idx:furthest_idx]
+
+
+        return lane
 
     def pose_cb(self, msg):
         self.pose = msg
